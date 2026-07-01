@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Avalie sua experiência • Rodre Cosméticos</title>
+<meta name="description" content="Conte para a Rodre Cosméticos como foi sua experiência. Leva menos de 30 segundos.">
+
+<style>
+/* ======================================================
+   RODRE COSMÉTICOS — AVALIAÇÃO DE CLIENTES
+   Sistema de tokens de design
+   ====================================================== */
+:root{
+  --roxo-fundo:      #5B1450;
+  --roxo-fundo-2:    #7A1B6B;
+  --magenta:         #C2186F;
+  --magenta-claro:   #E84393;
+  --lavanda-clara:   #F8E8F2;
+  --branco:          #FFFFFF;
+  --tinta:           #2B1224;
+  --tinta-suave:     #6B4A63;
+  --ouro-estrela:    #F2C14E;
+  --linha:           rgba(255,255,255,0.18);
+
+  --fonte-display: 'RodreScript', Georgia, 'Times New Roman', serif;
+  --fonte-corpo: 'RodreSans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --raio: 22px;
+  --raio-peq: 12px;
+  --sombra-suave: 0 12px 40px rgba(43,18,36,0.25);
+  --transicao: 420ms cubic-bezier(.22,1,.36,1);
+}
+
+@font-face{
+  font-family:'RodreScript';
+  src: local('Snell Roundhand'), local('Brush Script MT');
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{
+  font-family: var(--fonte-corpo);
+  font-display: optional;
+  color: var(--tinta);
+  background: var(--roxo-fundo);
+  -webkit-font-smoothing: antialiased;
+  overflow-x:hidden;
+}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=DM+Sans:wght@400;500;600;700&display=swap');
+body{ --fonte-display: 'Cormorant Garamond', Georgia, serif; --fonte-corpo: 'DM Sans', -apple-system, sans-serif; }
+
+button{ font-family: inherit; border:none; background:none; cursor:pointer; }
+input, textarea{ font-family: inherit; }
+a{ color: inherit; }
+
+/* ---------- App de avaliação (cliente) ---------- */
+#app-avaliacao{
+  position:relative;
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 140% 90% at 50% -10%, var(--roxo-fundo-2) 0%, var(--roxo-fundo) 55%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding: 28px 20px 40px;
+}
+
+/* ramos decorativos sutis, ecoando a coroa floral da logo */
+.ramo-decor{
+  position:absolute;
+  width:220px; height:220px;
+  opacity:0.10;
+  pointer-events:none;
+  z-index:0;
+}
+.ramo-decor.tl{ top:-30px; left:-40px; transform: rotate(-12deg); }
+.ramo-decor.br{ bottom:-30px; right:-40px; transform: rotate(168deg); }
+
+.barra-progresso-wrap{
+  position:fixed; top:0; left:0; right:0;
+  height:4px;
+  background: rgba(255,255,255,0.15);
+  z-index:50;
+}
+.barra-progresso{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, var(--magenta-claro), var(--ouro-estrela));
+  transition: width 500ms cubic-bezier(.22,1,.36,1);
+}
+
+.cartao{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:460px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px);
+  border:1px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 44px 32px 36px;
+  text-align:center;
+  color: var(--branco);
+}
+
+.tela{
+  display:none;
+  animation: surgir var(--transicao) both;
+}
+.tela.ativa{ display:block; }
+@keyframes surgir{
+  from{ opacity:0; transform: translateY(14px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+.logo-marca{
+  width:78px; height:78px;
+  margin: 0 auto 18px;
+  border-radius:50%;
+  object-fit:cover;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  background: var(--roxo-fundo-2);
+}
+
+.eyebrow{
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom:10px;
+  font-weight:500;
+}
+
+h1.titulo-tela{
+  font-family: var(--fonte-display);
+  font-weight:600;
+  font-size: clamp(28px, 7vw, 36px);
+  line-height:1.15;
+  margin-bottom:10px;
+  color: var(--branco);
+}
+p.subtitulo-tela{
+  font-size:15px;
+  color: rgba(255,255,255,0.78);
+  line-height:1.5;
+  margin-bottom:30px;
+}
+
+.btn-primario{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:16px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--magenta-claro), var(--magenta));
+  color: var(--branco);
+  font-weight:600;
+  font-size:16px;
+  letter-spacing:.01em;
+  box-shadow: 0 10px 24px rgba(194,24,111,0.45);
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+.btn-primario:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(194,24,111,0.55); }
+.btn-primario:active{ transform: translateY(0px) scale(.98); }
+.btn-primario:disabled{ opacity:.4; box-shadow:none; cursor:not-allowed; transform:none; }
+
+.btn-secundario{
+  display:block;
+  margin:14px auto 0;
+  font-size:14px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,0.3);
+}
+
+.campo-texto{
+  width:100%;
+  padding:16px 18px;
+  border-radius: var(--raio-peq);
+  border:1.5px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.07);
+  color: var(--branco);
+  font-size:16px;
+  outline:none;
+  transition: border-color 200ms ease, background 200ms ease;
+  margin-bottom:22px;
+}
+.campo-texto::placeholder{ color: rgba(255,255,255,0.45); }
+.campo-texto:focus{ border-color: var(--magenta-claro); background: rgba(255,255,255,0.11); }
+
+textarea.campo-texto{ min-height:110px; resize:vertical; line-height:1.5; }
+
+/* ---------- Estrelas (assinatura visual, traço fino estilo line-art) ---------- */
+.grupo-estrelas{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin: 6px 0 8px;
+}
+.estrela-grande svg{ width:46px; height:46px; }
+.estrela-pequena svg{ width:30px; height:30px; }
+.estrela-btn{
+  transition: transform 160ms ease;
+  line-height:0;
+}
+.estrela-btn svg path{
+  stroke: rgba(255,255,255,0.55);
+  stroke-width:1.4;
+  fill: transparent;
+  transition: fill 220ms ease, stroke 220ms ease;
+}
+.estrela-btn.selecionada svg path,
+.estrela-btn.preenchida svg path{
+  fill: var(--ouro-estrela);
+  stroke: var(--ouro-estrela);
+}
+.estrela-btn:hover svg path{ stroke: var(--ouro-estrela); }
+.estrela-btn:active{ transform: scale(.88); }
+.estrela-btn.pulsar{ animation: pulsarEstrela 320ms ease; }
+@keyframes pulsarEstrela{
+  0%{ transform:scale(1); } 45%{ transform:scale(1.28); } 100%{ transform:scale(1); }
+}
+
+.legenda-estrela{
+  height:20px;
+  font-size:13px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom:18px;
+}
+
+.bloco-categoria{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 4px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  text-align:left;
+}
+.bloco-categoria:last-of-type{ border-bottom:none; }
+.bloco-categoria .nome-categoria{
+  font-size:15px;
+  font-weight:500;
+  color: rgba(255,255,255,0.9);
+}
+.lista-categorias{ margin-bottom:28px; }
+
+.checkbox-linha{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  text-align:left;
+  padding:16px;
+  border-radius: var(--raio-peq);
+  background: rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.18);
+  margin-bottom:26px;
+  cursor:pointer;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.checkbox-linha.marcado{ border-color: var(--magenta-claro); background: rgba(232,67,147,0.12); }
+.checkbox-linha input{ display:none; }
+.check-visual{
+  flex-shrink:0;
+  width:22px; height:22px;
+  border-radius:6px;
+  border:1.5px solid rgba(255,255,255,0.4);
+  display:flex; align-items:center; justify-content:center;
+  margin-top:1px;
+  transition: all 180ms ease;
+}
+.checkbox-linha.marcado .check-visual{
+  background: var(--magenta-claro);
+  border-color: var(--magenta-claro);
+}
+.check-visual svg{ width:13px; height:13px; opacity:0; transform: scale(0.5); transition: all 160ms ease; }
+.checkbox-linha.marcado .check-visual svg{ opacity:1; transform: scale(1); }
+.checkbox-linha p{ font-size:14px; line-height:1.5; color: rgba(255,255,255,0.85); }
+
+.aviso-erro{
+  font-size:13px;
+  color: var(--ouro-estrela);
+  margin-top:-14px;
+  margin-bottom:16px;
+  display:none;
+}
+.aviso-erro.ativo{ display:block; }
+.shake{ animation: tremer 380ms; }
+@keyframes tremer{
+  10%,90%{ transform: translateX(-2px); } 20%,80%{ transform: translateX(4px); }
+  30%,50%,70%{ transform: translateX(-7px); } 40%,60%{ transform: translateX(7px); }
+}
+
+/* tela final + confetes */
+.icone-sucesso{ width:64px; height:64px; margin: 0 auto 18px; }
+.confetes-canvas{ position:fixed; inset:0; pointer-events:none; z-index:100; }
+
+.rodape-app{
+  margin-top:30px;
+  font-size:12px;
+  color: rgba(255,255,255,0.4);
+  text-align:center;
+}
+
+/* ---------- Card de avaliação (gerado para exportação) ---------- */
+#palco-card{
+  position:fixed;
+  left:-9999px; top:0;
+  width:600px;
+}
+.card-avaliacao{
+  width:600px;
+  padding:48px;
+  background: linear-gradient(160deg, var(--roxo-fundo-2) 0%, var(--roxo-fundo) 100%);
+  color:#fff;
+  font-family: var(--fonte-corpo);
+  position:relative;
+  overflow:hidden;
+}
+.card-avaliacao::before{
+  content:'';
+  position:absolute; top:-60px; right:-60px;
+  width:240px; height:240px;
+  border-radius:50%;
+  background: rgba(232,67,147,0.18);
+}
+.card-marca{
+  font-family: var(--fonte-display);
+  font-size:30px;
+  font-weight:600;
+  margin-bottom:30px;
+  position:relative; z-index:1;
+}
+.card-estrelas{ display:flex; gap:6px; margin-bottom:22px; position:relative; z-index:1; }
+.card-estrelas svg{ width:30px; height:30px; }
+.card-nome{ font-size:22px; font-weight:700; margin-bottom:12px; position:relative; z-index:1; }
+.card-comentario{
+  font-family: var(--fonte-display);
+  font-style:italic;
+  font-size:23px;
+  line-height:1.5;
+  color: rgba(255,255,255,0.92);
+  margin-bottom:34px;
+  position:relative; z-index:1;
+}
+.card-rodape{
+  font-size:13px;
+  letter-spacing:.04em;
+  color: rgba(255,255,255,0.6);
+  border-top:1px solid rgba(255,255,255,0.2);
+  padding-top:18px;
+  position:relative; z-index:1;
+}
+
+/* ================== PAINEL ADMINISTRATIVO ================== */
+#app-admin{ display:none; min-height:100vh; background: var(--lavanda-clara); }
+
+.admin-login{
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--roxo-fundo);
+  padding:20px;
+}
+.admin-login-cartao{
+  background:#fff; border-radius: var(--raio);
+  padding:40px 32px; width:100%; max-width:380px;
+  text-align:center;
+  box-shadow: var(--sombra-suave);
+}
+.admin-login-cartao h2{ font-family: var(--fonte-display); font-size:26px; margin-bottom:6px; color: var(--roxo-fundo-2);}
+.admin-login-cartao p{ font-size:13px; color: var(--tinta-suave); margin-bottom:22px;}
+.admin-login-cartao input{
+  width:100%; padding:14px 16px; border-radius:10px;
+  border:1.5px solid #E3D5DE; margin-bottom:14px; font-size:15px; outline:none;
+}
+.admin-login-cartao input:focus{ border-color: var(--magenta); }
+.admin-login-cartao .btn-primario{ box-shadow:none; }
+.erro-login{ color:#C0392B; font-size:13px; margin-top:-4px; margin-bottom:10px; display:none; }
+.erro-login.ativo{ display:block; }
+
+.admin-shell{ display:flex; min-height:100vh; }
+.admin-sidebar{
+  width:230px; background: var(--roxo-fundo-2); color:#fff;
+  padding:28px 20px; flex-shrink:0;
+}
+.admin-sidebar .marca{ font-family: var(--fonte-display); font-size:24px; margin-bottom:30px; }
+.admin-sidebar nav button{
+  display:flex; align-items:center; gap:10px;
+  width:100%; text-align:left; padding:11px 12px; border-radius:10px;
+  color: rgba(255,255,255,0.75); font-size:14px; font-weight:500; margin-bottom:4px;
+  transition: background 160ms ease, color 160ms ease;
+}
+.admin-sidebar nav button:hover{ background: rgba(255,255,255,0.08); color:#fff; }
+.admin-sidebar nav button.ativo{ background: rgba(255,255,255,0.15); color:#fff; }
+.admin-sidebar .sair{ margin-top:30px; font-size:13px; color: rgba(255,255,255,0.5); }
+
+.admin-main{ flex:1; padding:32px 36px; overflow-x:hidden; }
+.admin-main h1{ font-family: var(--fonte-display); font-size:30px; color: var(--roxo-fundo-2); margin-bottom:4px; }
+.admin-main .sub{ font-size:13px; color: var(--tinta-suave); margin-bottom:28px; }
+
+.painel-secao{ display:none; }
+.painel-secao.ativa{ display:block; animation: surgir 320ms both; }
+
+.grid-stats{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+  gap:16px;
+  margin-bottom:30px;
+}
+.stat-card{
+  background:#fff; border-radius:16px; padding:20px;
+  box-shadow: 0 6px 18px rgba(43,18,36,0.07);
+}
+.stat-card .num{ font-family: var(--fonte-display); font-size:32px; font-weight:600; color: var(--magenta); }
+.stat-card .label{ font-size:12px; color: var(--tinta-suave); margin-top:4px; }
+
+.grid-graficos{
+  display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-bottom:10px;
+}
+.grafico-card{ background:#fff; border-radius:16px; padding:20px; box-shadow: 0 6px 18px rgba(43,18,36,0.07); }
+.grafico-card h3{ font-size:14px; margin-bottom:14px; color: var(--tinta); }
+.grafico-card.full{ grid-column: 1 / -1; }
+canvas{ max-width:100%; }
+
+.barra-filtros{
+  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; align-items:center;
+}
+.barra-filtros select, .barra-filtros input[type="date"]{
+  padding:9px 12px; border-radius:9px; border:1.5px solid #E3D5DE; font-size:13px; background:#fff;
+}
+.chip-filtro{
+  padding:8px 14px; border-radius:999px; border:1.5px solid #E3D5DE;
+  font-size:13px; background:#fff; color: var(--tinta-suave);
+}
+.chip-filtro.ativo{ background: var(--magenta); color:#fff; border-color: var(--magenta); }
+.btn-exportar{
+  margin-left:auto;
+  padding:9px 16px; border-radius:9px; background: var(--roxo-fundo-2); color:#fff; font-size:13px; font-weight:600;
+}
+
+.tabela-avaliacoes{ width:100%; border-collapse:collapse; background:#fff; border-radius:14px; overflow:hidden; box-shadow: 0 6px 18px rgba(43,18,36,0.07);}
+.tabela-avaliacoes th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color: var(--tinta-suave); padding:14px 16px; background:#FAF3F8; }
+.tabela-avaliacoes td{ padding:14px 16px; font-size:13px; border-top:1px solid #F1E5EE; vertical-align:middle; }
+.estrelas-mini{ display:flex; gap:2px; }
+.estrelas-mini svg{ width:14px; height:14px; }
+.estrelas-mini svg path{ stroke: var(--ouro-estrela); stroke-width:1.4; }
+.estrelas-mini svg.preenchida path{ fill: var(--ouro-estrela); }
+.tag-autorizado{ font-size:11px; padding:3px 8px; border-radius:999px; background:#E8F6EE; color:#1E8449; font-weight:600; }
+.tag-naoautorizado{ font-size:11px; padding:3px 8px; border-radius:999px; background:#F4F0F2; color:#998; font-weight:600; }
+.tag-publicado{ font-size:11px; padding:3px 8px; border-radius:999px; background:#E8EEFB; color:#2E5BFF; font-weight:600; }
+.acoes-linha{ display:flex; gap:6px; flex-wrap:wrap; }
+.btn-icone{
+  padding:6px 9px; border-radius:7px; background:#F6EEF3; font-size:12px; color: var(--roxo-fundo-2); font-weight:500;
+  transition: background 150ms ease;
+}
+.btn-icone:hover{ background:#EBD9E5; }
+.btn-icone.perigo{ color:#C0392B; background:#FBEAE7; }
+.btn-icone.perigo:hover{ background:#F5D5CE; }
+.comentario-cel{ max-width:220px; }
+
+.modal-overlay{
+  display:none; position:fixed; inset:0; background: rgba(43,18,36,0.55);
+  align-items:center; justify-content:center; z-index:200; padding:20px;
+}
+.modal-overlay.ativo{ display:flex; }
+.modal-conteudo{ background:#fff; border-radius:18px; padding:24px; max-width:90vw; max-height:90vh; overflow:auto; }
+.modal-fechar{ display:block; margin:14px auto 0; font-size:13px; color: var(--tinta-suave); text-decoration:underline; }
+
+.vazio-estado{ text-align:center; padding:50px 20px; color: var(--tinta-suave); }
+.vazio-estado .icone{ font-size:40px; margin-bottom:10px; }
+
+@media (max-width: 880px){
+  .admin-shell{ flex-direction:column; }
+  .admin-sidebar{ width:100%; display:flex; align-items:center; justify-content:space-between; padding:16px 20px; }
+  .admin-sidebar .marca{ margin-bottom:0; }
+  .admin-sidebar nav{ display:flex; gap:4px; }
+  .admin-sidebar nav button span.txt{ display:none; }
+  .admin-sidebar .sair{ display:none; }
+  .admin-main{ padding:20px; }
+  .grid-graficos{ grid-template-columns:1fr; }
+  .tabela-avaliacoes{ display:block; overflow-x:auto; white-space:nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     APP DE AVALIAÇÃO (visão da cliente)
+     ============================================================ -->
+<div id="app-avaliacao">
+
+  <div class="barra-progresso-wrap"><div class="barra-progresso" id="barraProgresso"></div></div>
+
+  <svg class="ramo-decor tl" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="1">
+    <path d="M10 90 Q 30 60 20 30 Q 40 40 50 15 Q 55 35 80 25"/>
+    <circle cx="50" cy="15" r="3"/><circle cx="20" cy="30" r="2.5"/><circle cx="80" cy="25" r="2"/>
+  </svg>
+  <svg class="ramo-decor br" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="1">
+    <path d="M10 90 Q 30 60 20 30 Q 40 40 50 15 Q 55 35 80 25"/>
+    <circle cx="50" cy="15" r="3"/><circle cx="20" cy="30" r="2.5"/><circle cx="80" cy="25" r="2"/>
+  </svg>
+
+  <div class="cartao">
+
+    <!-- TELA 1 — Boas-vindas -->
+    <section class="tela ativa" data-tela="1">
+      <img src="logo.jpg" alt="Rodre Cosméticos" class="logo-marca" onerror="this.style.display='none'">
+      <h1 class="titulo-tela">Como foi sua experiência?</h1>
+      <p class="subtitulo-tela">Sua opinião é muito importante para nós 💜</p>
+      <button class="btn-primario" onclick="irPara(2)">Começar</button>
+    </section>
+
+    <!-- TELA 2 — Nome -->
+    <section class="tela" data-tela="2">
+      <p class="eyebrow">Passo 1 de 6</p>
+      <h1 class="titulo-tela">Como podemos te chamar?</h1>
+      <input type="text" id="campoNome" class="campo-texto" placeholder="Seu primeiro nome" maxlength="60" autocomplete="given-name">
+      <p class="aviso-erro" id="erroNome">Por favor, escreva seu nome para continuar 💜</p>
+      <button class="btn-primario" onclick="validarNome()">Continuar</button>
+    </section>
+
+    <!-- TELA 3 — Avaliação geral -->
+    <section class="tela" data-tela="3">
+      <p class="eyebrow">Passo 2 de 6</p>
+      <h1 class="titulo-tela" id="tituloNotaGeral">Como você avalia sua experiência na Rodre?</h1>
+      <div class="grupo-estrelas" id="estrelasGeral" data-grupo="geral">
+        <!-- estrelas geradas via JS -->
+      </div>
+      <p class="legenda-estrela" id="legendaGeral">&nbsp;</p>
+      <p class="aviso-erro" id="erroGeral">Toque em uma estrela para continuar</p>
+      <button class="btn-primario" onclick="validarNotaGeral()">Continuar</button>
+    </section>
+
+    <!-- TELA 4 — Avaliações específicas -->
+    <section class="tela" data-tela="4">
+      <p class="eyebrow">Passo 3 de 6 · opcional</p>
+      <h1 class="titulo-tela" style="font-size:26px;">Quer detalhar um pouco mais?</h1>
+      <p class="subtitulo-tela" style="margin-bottom:14px;">Toque nas estrelas dos itens que quiser avaliar</p>
+      <div class="lista-categorias">
+        <div class="bloco-categoria">
+          <span class="nome-categoria">Atendimento</span>
+          <div class="grupo-estrelas" style="margin:0; gap:6px;" data-grupo="atendimento"></div>
+        </div>
+        <div class="bloco-categoria">
+          <span class="nome-categoria">Compra pelo site</span>
+          <div class="grupo-estrelas" style="margin:0; gap:6px;" data-grupo="compra"></div>
+        </div>
+        <div class="bloco-categoria">
+          <span class="nome-categoria">Entrega</span>
+          <div class="grupo-estrelas" style="margin:0; gap:6px;" data-grupo="entrega"></div>
+        </div>
+        <div class="bloco-categoria">
+          <span class="nome-categoria">Produtos</span>
+          <div class="grupo-estrelas" style="margin:0; gap:6px;" data-grupo="produtos"></div>
+        </div>
+      </div>
+      <button class="btn-primario" onclick="irPara(5)">Continuar</button>
+    </section>
+
+    <!-- TELA 5 — Comentário -->
+    <section class="tela" data-tela="5">
+      <p class="eyebrow">Passo 4 de 6 · opcional</p>
+      <h1 class="titulo-tela" style="font-size:26px;">Quer deixar um comentário?</h1>
+      <textarea id="campoComentario" class="campo-texto" placeholder="Conte para outras clientes como foi sua experiência..." maxlength="400"></textarea>
+      <button class="btn-primario" onclick="irPara(6)">Continuar</button>
+    </section>
+
+    <!-- TELA 6 — Autorização -->
+    <section class="tela" data-tela="6">
+      <p class="eyebrow">Passo 5 de 6</p>
+      <h1 class="titulo-tela" style="font-size:26px;">Podemos compartilhar?</h1>
+      <label class="checkbox-linha" id="linhaAutorizacao">
+        <input type="checkbox" id="checkAutorizacao" onchange="sincronizarAutorizacao(this.checked)">
+        <span class="check-visual"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>
+        <p>Autorizo a Rodre Cosméticos a utilizar meu nome e minha avaliação em redes sociais, anúncios e materiais de divulgação.</p>
+      </label>
+      <p class="aviso-erro" id="erroAutorizacao">Precisamos da sua autorização para continuar 💜</p>
+      <button class="btn-primario" onclick="validarAutorizacao()">Continuar</button>
+    </section>
+
+    <!-- TELA 7 — Revisão / Envio -->
+    <section class="tela" data-tela="7">
+      <p class="eyebrow">Passo 6 de 6</p>
+      <h1 class="titulo-tela" style="font-size:26px;">Tudo certo, <span id="nomeRevisao">querida</span>?</h1>
+      <p class="subtitulo-tela">Confirme abaixo para enviar sua avaliação</p>
+      <button class="btn-primario" id="btnEnviar" onclick="enviarAvaliacao()">Enviar avaliação</button>
+      <button class="btn-secundario" onclick="irPara(2)">Editar respostas</button>
+    </section>
+
+    <!-- TELA FINAL — Sucesso -->
+    <section class="tela" data-tela="8">
+      <svg class="icone-sucesso" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="38" stroke="#F2C14E" stroke-width="2"/>
+        <path d="M24 41l10 10 22-22" stroke="#F2C14E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h1 class="titulo-tela">Muito obrigada pelo seu carinho! 💜</h1>
+      <p class="subtitulo-tela" id="mensagemFinal">Sua avaliação foi enviada com sucesso!</p>
+    </section>
+
+  </div>
+
+  <p class="rodape-app">Rodre Cosméticos · avaliação de clientes</p>
+</div>
+
+<canvas class="confetes-canvas" id="canvasConfete"></canvas>
+
+<!-- Palco invisível usado para renderizar o card de avaliação em alta qualidade -->
+<div id="palco-card">
+  <div class="card-avaliacao" id="cardParaImagem">
+    <div class="card-marca">Rodre.</div>
+    <div class="card-estrelas" id="cardEstrelas"></div>
+    <div class="card-nome" id="cardNome">—</div>
+    <div class="card-comentario" id="cardComentario">"—"</div>
+    <div class="card-rodape">Avaliação de cliente • Rodre Cosméticos 💜</div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     PAINEL ADMINISTRATIVO
+     ============================================================ -->
+<div id="app-admin">
+
+  <!-- Login -->
+  <div class="admin-login" id="telaLoginAdmin">
+    <div class="admin-login-cartao">
+      <h2>Painel Rodre</h2>
+      <p>Acesso restrito à equipe</p>
+      <input type="password" id="senhaAdmin" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')tentarLogin()">
+      <p class="erro-login" id="erroLoginAdmin">Senha incorreta. Tente novamente.</p>
+      <button class="btn-primario" style="background:linear-gradient(135deg,#E84393,#C2186F);" onclick="tentarLogin()">Entrar</button>
+    </div>
+  </div>
+
+  <!-- Painel -->
+  <div class="admin-shell" id="painelAdminShell" style="display:none;">
+    <aside class="admin-sidebar">
+      <div class="marca">Rodre.</div>
+      <nav>
+        <button class="ativo" data-secao="dashboard" onclick="mudarSecaoAdmin('dashboard')">📊 <span class="txt">Dashboard</span></button>
+        <button data-secao="avaliacoes" onclick="mudarSecaoAdmin('avaliacoes')">⭐ <span class="txt">Avaliações</span></button>
+        <button data-secao="config" onclick="mudarSecaoAdmin('config')">⚙️ <span class="txt">Configurações</span></button>
+      </nav>
+      <div class="sair"><button onclick="sairAdmin()">Sair do painel</button></div>
+    </aside>
+
+    <main class="admin-main">
+
+      <!-- Dashboard -->
+      <section class="painel-secao ativa" data-secao-painel="dashboard">
+        <h1>Dashboard</h1>
+        <p class="sub">Visão geral das avaliações da Rodre Cosméticos</p>
+
+        <div class="grid-stats" id="gridStats"></div>
+
+        <div class="grid-graficos">
+          <div class="grafico-card full">
+            <h3>Evolução diária das avaliações</h3>
+            <canvas id="graficoEvolucao" height="80"></canvas>
+          </div>
+          <div class="grafico-card">
+            <h3>Distribuição das notas</h3>
+            <canvas id="graficoDistribuicao" height="160"></canvas>
+          </div>
+          <div class="grafico-card">
+            <h3>Média por categoria</h3>
+            <canvas id="graficoCategorias" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Avaliações -->
+      <section class="painel-secao" data-secao-painel="avaliacoes">
+        <h1>Avaliações</h1>
+        <p class="sub">Gerencie, filtre e exporte os depoimentos das clientes</p>
+
+        <div class="barra-filtros">
+          <select id="filtroEstrelas" onchange="renderizarTabela()">
+            <option value="">Todas as notas</option>
+            <option value="5">5 estrelas</option>
+            <option value="4">4 estrelas</option>
+            <option value="3">3 estrelas</option>
+            <option value="2">2 estrelas</option>
+            <option value="1">1 estrela</option>
+          </select>
+          <select id="filtroOrigem" onchange="renderizarTabela()">
+            <option value="">Todas as origens</option>
+          </select>
+          <input type="date" id="filtroData" onchange="renderizarTabela()">
+          <button class="chip-filtro" id="chipAutorizadas" onclick="alternarFiltroAutorizadas()">Apenas autorizadas</button>
+          <button class="btn-exportar" onclick="exportarCSV()">Exportar CSV</button>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="tabela-avaliacoes" id="tabelaAvaliacoes">
+            <thead>
+              <tr>
+                <th>Nome</th><th>Data</th><th>Nota</th><th>Comentário</th>
+                <th>Origem</th><th>Divulgação</th><th>Status</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Configurações -->
+      <section class="painel-secao" data-secao-painel="config">
+        <h1>Configurações</h1>
+        <p class="sub">Integrações e estrutura técnica</p>
+
+        <div class="grafico-card" style="margin-bottom:16px;">
+          <h3>Google Sheets</h3>
+          <p style="font-size:13px;color:#6B4A63;line-height:1.6;">
+            As avaliações são enviadas automaticamente para a planilha via Google Apps Script.
+            Configure a URL do seu Web App na constante <code>URL_GOOGLE_SHEETS</code> no código-fonte.
+            Enquanto não configurado, os dados ficam salvos localmente no navegador (localStorage).
+          </p>
+        </div>
+
+        <div class="grafico-card">
+          <h3>Notificação via WhatsApp</h3>
+          <p style="font-size:13px;color:#6B4A63;line-height:1.6;margin-bottom:10px;">
+            Estrutura pronta para envio automático de notificação ao número da equipe
+            <strong>+55 47 99166-5148</strong> a cada nova avaliação. A função <code>notificarWhatsApp()</code>
+            está pronta para ser conectada a uma API (Evolution API, Meta WhatsApp Cloud API, ou similar) —
+            basta inserir a URL do endpoint e o token de autenticação nas constantes no topo do código.
+            Até a configuração, a notificação é apenas registrada no console e fica disponível como link
+            manual de WhatsApp no painel.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal de visualização do card -->
+<div class="modal-overlay" id="modalCard">
+  <div class="modal-conteudo">
+    <img id="imagemModalCard" src="" alt="Card de avaliação" style="max-width:340px; border-radius:14px; display:block;">
+    <button class="modal-fechar" onclick="fecharModalCard()">Fechar</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   RODRE COSMÉTICOS — LÓGICA DA APLICAÇÃO
+   Organizado em seções: CONFIG, ESTADO, UTILITÁRIOS,
+   FLUXO DE AVALIAÇÃO, ENVIO/INTEGRAÇÕES, GERAÇÃO DE CARD,
+   PAINEL ADMIN, GRÁFICOS, INICIALIZAÇÃO
+   ============================================================ */
+
+/* ---------------- CONFIGURAÇÃO ---------------- */
+// Cole aqui a URL do seu Web App do Google Apps Script (Implantar > Aplicativo da Web)
+const URL_GOOGLE_SHEETS = ""; // ex: "https://script.google.com/macros/s/AKfycb.../exec"
+
+// Estrutura para notificação via WhatsApp (preencher quando a API estiver pronta)
+const WHATSAPP_NUMERO_EQUIPE = "5547991665148"; // formato internacional sem símbolos
+const WHATSAPP_API_URL = "";   // ex: endpoint da Evolution API / Meta Cloud API
+const WHATSAPP_API_TOKEN = ""; // token de autenticação da API escolhida
+
+const SENHA_ADMIN = "rodre2026"; // troque para uma senha forte antes de publicar
+const URL_PAINEL_ADMIN = window.location.origin + window.location.pathname + "?admin=1";
+
+/* ---------------- ESTADO ---------------- */
+let estadoAvaliacao = {
+  nome: "",
+  geral: 0,
+  atendimento: 0,
+  compra: 0,
+  entrega: 0,
+  produtos: 0,
+  comentario: "",
+  autorizacao: false,
+  origem: "direto"
+};
+
+const TOTAL_TELAS = 7; // telas de preenchimento (sem contar a tela final de sucesso)
+let telaAtual = 1;
+
+const legendasEstrela = ["", "Muito ruim", "Ruim", "Regular", "Bom", "Excelente"];
+
+/* ---------------- UTILITÁRIOS ---------------- */
+
+// Gera o SVG de uma estrela (traço fino, no mesmo espírito da identidade visual da marca)
+function svgEstrela(){
+  return `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.4 6.9.7-5.2 4.7 1.6 6.8L12 17.7 5.8 21.1l1.6-6.8L2.2 9.6l6.9-.7z" stroke-linejoin="round"/></svg>`;
+}
+
+// Lê o parâmetro "origem" da URL (rastreamento de campanhas) e ?admin=1 para o painel
+function lerParametrosURL(){
+  const params = new URLSearchParams(window.location.search);
+  const origem = params.get("origem");
+  if(origem) estadoAvaliacao.origem = origem;
+  return params;
+}
+
+// Salva o progresso no localStorage para recuperação em caso de fechamento acidental
+function salvarRascunho(){
+  try{
+    localStorage.setItem("rodre_rascunho_avaliacao", JSON.stringify({ estadoAvaliacao, telaAtual }));
+  }catch(e){ /* localStorage indisponível — segue sem salvar rascunho */ }
+}
+
+function recuperarRascunho(){
+  try{
+    const salvo = localStorage.getItem("rodre_rascunho_avaliacao");
+    if(!salvo) return;
+    const dados = JSON.parse(salvo);
+    if(dados.estadoAvaliacao && dados.telaAtual && dados.telaAtual < 8){
+      estadoAvaliacao = { ...estadoAvaliacao, ...dados.estadoAvaliacao };
+      telaAtual = dados.telaAtual;
+    }
+  }catch(e){ /* rascunho corrompido — ignora */ }
+}
+
+function limparRascunho(){
+  try{ localStorage.removeItem("rodre_rascunho_avaliacao"); }catch(e){}
+}
+
+/* ---------------- FLUXO DE AVALIAÇÃO (passo a passo) ---------------- */
+
+function irPara(numeroTela){
+  document.querySelectorAll("#app-avaliacao .tela").forEach(t => t.classList.remove("ativa"));
+  const proxima = document.querySelector(`#app-avaliacao .tela[data-tela="${numeroTela}"]`);
+  if(proxima) proxima.classList.add("ativa");
+  telaAtual = numeroTela;
+  atualizarBarraProgresso();
+  if(numeroTela === 7){
+    document.getElementById("nomeRevisao").textContent = estadoAvaliacao.nome || "querida";
+  }
+  salvarRascunho();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function atualizarBarraProgresso(){
+  const pct = Math.min(100, Math.round((telaAtual - 1) / TOTAL_TELAS * 100));
+  document.getElementById("barraProgresso").style.width = pct + "%";
+}
+
+function validarNome(){
+  const valor = document.getElementById("campoNome").value.trim();
+  const erro = document.getElementById("erroNome");
+  if(!valor){
+    erro.classList.add("ativo");
+    document.getElementById("campoNome").parentElement.classList.add("shake");
+    setTimeout(() => document.getElementById("campoNome").parentElement.classList.remove("shake"), 400);
+    return;
+  }
+  erro.classList.remove("ativo");
+  estadoAvaliacao.nome = valor;
+  irPara(3);
+}
+
+function validarNotaGeral(){
+  if(estadoAvaliacao.geral === 0){
+    document.getElementById("erroGeral").classList.add("ativo");
+    return;
+  }
+  document.getElementById("erroGeral").classList.remove("ativo");
+  irPara(4);
+}
+
+function sincronizarAutorizacao(marcado){
+  estadoAvaliacao.autorizacao = marcado;
+  document.getElementById("linhaAutorizacao").classList.toggle("marcado", marcado);
+  document.getElementById("erroAutorizacao").classList.remove("ativo");
+  salvarRascunho();
+}
+
+function validarAutorizacao(){
+  if(!estadoAvaliacao.autorizacao){
+    document.getElementById("erroAutorizacao").classList.add("ativo");
+    return;
+  }
+  irPara(7);
+}
+
+// Monta os grupos de estrelas (geral = grande, categorias = pequenas) com interatividade
+function montarGrupoEstrelas(container, chave, tamanho){
+  container.classList.add(tamanho === "grande" ? "estrela-grande" : "estrela-pequena");
+  for(let i = 1; i <= 5; i++){
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "estrela-btn";
+    btn.innerHTML = svgEstrela();
+    btn.dataset.valor = i;
+    btn.addEventListener("click", () => selecionarEstrela(chave, i, container));
+    btn.addEventListener("mouseenter", () => pintarEstrelas(container, i));
+    btn.addEventListener("mouseleave", () => pintarEstrelas(container, estadoAvaliacao[chave]));
+    container.appendChild(btn);
+  }
+}
+
+function pintarEstrelas(container, valor){
+  container.querySelectorAll(".estrela-btn").forEach(btn => {
+    btn.classList.toggle("preenchida", parseInt(btn.dataset.valor) <= valor);
+  });
+}
+
+function selecionarEstrela(chave, valor, container){
+  estadoAvaliacao[chave] = valor;
+  pintarEstrelas(container, valor);
+  const btnClicado = container.querySelector(`.estrela-btn[data-valor="${valor}"]`);
+  btnClicado.classList.add("pulsar");
+  setTimeout(() => btnClicado.classList.remove("pulsar"), 320);
+
+  if(chave === "geral"){
+    document.getElementById("legendaGeral").textContent = legendasEstrela[valor];
+    document.getElementById("erroGeral").classList.remove("ativo");
+  }
+  salvarRascunho();
+}
+
+/* ---------------- ENVIO E INTEGRAÇÕES ---------------- */
+
+async function enviarAvaliacao(){
+  const btn = document.getElementById("btnEnviar");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  const registro = {
+    data: new Date().toISOString(),
+    nome: estadoAvaliacao.nome,
+    notaGeral: estadoAvaliacao.geral,
+    atendimento: estadoAvaliacao.atendimento || "",
+    compra: estadoAvaliacao.compra || "",
+    entrega: estadoAvaliacao.entrega || "",
+    produtos: estadoAvaliacao.produtos || "",
+    comentario: estadoAvaliacao.comentario || document.getElementById("campoComentario").value.trim(),
+    autorizacao: estadoAvaliacao.autorizacao ? "Sim" : "Não",
+    origem: estadoAvaliacao.origem,
+    publicado: false,
+    id: "av_" + Date.now()
+  };
+  registro.comentario = document.getElementById("campoComentario").value.trim();
+
+  // 1) Salva localmente (sempre, garante histórico mesmo sem internet/sheets configurado)
+  salvarAvaliacaoLocal(registro);
+
+  // 2) Envia para Google Sheets, se configurado
+  await enviarParaGoogleSheets(registro);
+
+  // 3) Notifica a equipe via WhatsApp (estrutura pronta para ativação futura)
+  notificarWhatsApp(registro);
+
+  // 4) Gera o card de avaliação (PNG) para a equipe usar como prova social
+  await gerarCardAvaliacao(registro);
+
+  limparRascunho();
+  irPara(8);
+  dispararConfete();
+}
+
+async function enviarParaGoogleSheets(registro){
+  if(!URL_GOOGLE_SHEETS){
+    console.info("[Rodre] URL_GOOGLE_SHEETS não configurada. Avaliação salva apenas localmente.");
+    return;
+  }
+  try{
+    await fetch(URL_GOOGLE_SHEETS, {
+      method: "POST",
+      mode: "no-cors", // Apps Script Web Apps geralmente exigem no-cors do client-side
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(registro)
+    });
+  }catch(erro){
+    console.error("[Rodre] Falha ao enviar para o Google Sheets:", erro);
+  }
+}
+
+// Estrutura pronta para notificação via WhatsApp (Evolution API / Meta Cloud API / etc).
+// Basta preencher WHATSAPP_API_URL e WHATSAPP_API_TOKEN no topo do arquivo para ativar.
+async function notificarWhatsApp(registro){
+  const mensagem =
+    `Nova avaliação recebida!\n` +
+    `Cliente: ${registro.nome}\n` +
+    `Nota: ${registro.notaGeral} estrelas\n` +
+    `Comentário: ${registro.comentario || "(sem comentário)"}\n` +
+    `Ver no painel: ${URL_PAINEL_ADMIN}`;
+
+  if(!WHATSAPP_API_URL || !WHATSAPP_API_TOKEN){
+    console.info("[Rodre] Integração de WhatsApp ainda não configurada. Mensagem que seria enviada:\n" + mensagem);
+    return;
+  }
+  try{
+    await fetch(WHATSAPP_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${WHATSAPP_API_TOKEN}`
+      },
+      body: JSON.stringify({
+        number: WHATSAPP_NUMERO_EQUIPE,
+        text: mensagem
+      })
+    });
+  }catch(erro){
+    console.error("[Rodre] Falha ao notificar WhatsApp:", erro);
+  }
+}
+
+/* ---------------- ARMAZENAMENTO LOCAL (fallback / cache do painel) ---------------- */
+
+function obterAvaliacoesLocais(){
+  try{
+    return JSON.parse(localStorage.getItem("rodre_avaliacoes") || "[]");
+  }catch(e){ return []; }
+}
+
+function salvarAvaliacaoLocal(registro){
+  const lista = obterAvaliacoesLocais();
+  lista.unshift(registro);
+  try{
+    localStorage.setItem("rodre_avaliacoes", JSON.stringify(lista));
+  }catch(e){ console.error("[Rodre] Não foi possível salvar localmente:", e); }
+}
+
+/* ---------------- GERAÇÃO DO CARD (PNG) ---------------- */
+
+// Usa html2canvas (CDN leve) para transformar o card invisível em uma imagem PNG em alta qualidade
+function carregarHtml2Canvas(){
+  return new Promise((resolve, reject) => {
+    if(window.html2canvas){ resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function montarEstrelasCard(nota, container){
+  container.innerHTML = "";
+  for(let i = 1; i <= 5; i++){
+    const span = document.createElement("span");
+    span.innerHTML = svgEstrela();
+    const path = span.querySelector("path");
+    path.style.stroke = "#F2C14E";
+    path.style.strokeWidth = "1.4";
+    if(i <= nota) path.style.fill = "#F2C14E";
+    container.appendChild(span);
+  }
+}
+
+async function gerarCardAvaliacao(registro){
+  document.getElementById("cardNome").textContent = registro.nome;
+  document.getElementById("cardComentario").textContent = registro.comentario
+    ? `"${registro.comentario}"`
+    : "Cliente recomenda a Rodre Cosméticos.";
+  montarEstrelasCard(registro.notaGeral, document.getElementById("cardEstrelas"));
+
+  try{
+    await carregarHtml2Canvas();
+    const canvas = await html2canvas(document.getElementById("cardParaImagem"), { scale: 2 });
+    const dataUrl = canvas.toDataURL("image/png");
+    // associa o PNG gerado ao registro salvo localmente, para uso no painel admin
+    const lista = obterAvaliacoesLocais();
+    const item = lista.find(r => r.id === registro.id);
+    if(item){
+      item.cardPng = dataUrl;
+      localStorage.setItem("rodre_avaliacoes", JSON.stringify(lista));
+    }
+  }catch(erro){
+    console.error("[Rodre] Falha ao gerar o card em PNG:", erro);
+  }
+}
+
+/* ---------------- CONFETES (tela final) ---------------- */
+
+function dispararConfete(){
+  const canvas = document.getElementById("canvasConfete");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const cores = ["#E84393", "#C2186F", "#F2C14E", "#FFFFFF"];
+  const particulas = Array.from({ length: 70 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -20 - Math.random() * canvas.height * 0.3,
+    tamanho: 4 + Math.random() * 5,
+    vx: -1 + Math.random() * 2,
+    vy: 2 + Math.random() * 3,
+    rotacao: Math.random() * 360,
+    vr: -6 + Math.random() * 12,
+    cor: cores[Math.floor(Math.random() * cores.length)]
+  }));
+
+  let quadros = 0;
+  function passo(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particulas.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rotacao += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotacao * Math.PI / 180);
+      ctx.fillStyle = p.cor;
+      ctx.fillRect(-p.tamanho/2, -p.tamanho/2, p.tamanho, p.tamanho * 0.5);
+      ctx.restore();
+    });
+    quadros++;
+    if(quadros < 130) requestAnimationFrame(passo);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  passo();
+}
+
+/* ============================================================
+   PAINEL ADMINISTRATIVO
+   ============================================================ */
+
+function tentarLogin(){
+  const valor = document.getElementById("senhaAdmin").value;
+  if(valor === SENHA_ADMIN){
+    document.getElementById("telaLoginAdmin").style.display = "none";
+    document.getElementById("painelAdminShell").style.display = "flex";
+    sessionStorage.setItem("rodre_admin_autenticado", "1");
+    inicializarPainelAdmin();
+  }else{
+    document.getElementById("erroLoginAdmin").classList.add("ativo");
+  }
+}
+
+function sairAdmin(){
+  sessionStorage.removeItem("rodre_admin_autenticado");
+  document.getElementById("painelAdminShell").style.display = "none";
+  document.getElementById("telaLoginAdmin").style.display = "flex";
+  document.getElementById("senhaAdmin").value = "";
+}
+
+function mudarSecaoAdmin(secao){
+  document.querySelectorAll(".admin-sidebar nav button").forEach(b => b.classList.toggle("ativo", b.dataset.secao === secao));
+  document.querySelectorAll(".painel-secao").forEach(s => s.classList.toggle("ativa", s.dataset.secaoPainel === secao));
+}
+
+let filtroAutorizadasAtivo = false;
+
+function inicializarPainelAdmin(){
+  preencherFiltroOrigens();
+  renderizarDashboard();
+  renderizarTabela();
+  desenharGraficos();
+}
+
+function preencherFiltroOrigens(){
+  const select = document.getElementById("filtroOrigem");
+  const origens = [...new Set(obterAvaliacoesLocais().map(r => r.origem).filter(Boolean))];
+  select.innerHTML = '<option value="">Todas as origens</option>' +
+    origens.map(o => `<option value="${o}">${o}</option>`).join("");
+}
+
+function renderizarDashboard(){
+  const lista = obterAvaliacoesLocais();
+  const total = lista.length;
+  const media = chave => {
+    const valores = lista.map(r => Number(r[chave])).filter(v => v > 0);
+    return valores.length ? (valores.reduce((a,b) => a+b, 0) / valores.length).toFixed(1) : "—";
+  };
+
+  const grid = document.getElementById("gridStats");
+  grid.innerHTML = `
+    <div class="stat-card"><div class="num">${total}</div><div class="label">Total de avaliações</div></div>
+    <div class="stat-card"><div class="num">${media('notaGeral')}</div><div class="label">Média geral</div></div>
+    <div class="stat-card"><div class="num">${media('atendimento')}</div><div class="label">Atendimento</div></div>
+    <div class="stat-card"><div class="num">${media('compra')}</div><div class="label">Compra</div></div>
+    <div class="stat-card"><div class="num">${media('entrega')}</div><div class="label">Entrega</div></div>
+    <div class="stat-card"><div class="num">${media('produtos')}</div><div class="label">Produtos</div></div>
+  `;
+}
+
+function obterAvaliacoesFiltradas(){
+  let lista = obterAvaliacoesLocais();
+  const estrelas = document.getElementById("filtroEstrelas").value;
+  const origem = document.getElementById("filtroOrigem").value;
+  const data = document.getElementById("filtroData").value;
+
+  if(estrelas) lista = lista.filter(r => String(r.notaGeral) === estrelas);
+  if(origem) lista = lista.filter(r => r.origem === origem);
+  if(data) lista = lista.filter(r => (r.data || "").slice(0,10) === data);
+  if(filtroAutorizadasAtivo) lista = lista.filter(r => r.autorizacao === "Sim");
+
+  return lista;
+}
+
+function alternarFiltroAutorizadas(){
+  filtroAutorizadasAtivo = !filtroAutorizadasAtivo;
+  document.getElementById("chipAutorizadas").classList.toggle("ativo", filtroAutorizadasAtivo);
+  renderizarTabela();
+}
+
+function gerarEstrelasMiniHTML(nota){
+  let html = "";
+  for(let i = 1; i <= 5; i++){
+    html += `<span style="display:inline-flex;">${svgEstrela()}</span>`;
+  }
+  return html;
+}
+
+function renderizarTabela(){
+  const lista = obterAvaliacoesFiltradas();
+  const corpo = document.getElementById("corpoTabela");
+
+  if(lista.length === 0){
+    corpo.innerHTML = `<tr><td colspan="8"><div class="vazio-estado"><div class="icone">💜</div>Nenhuma avaliação encontrada com esses filtros.</div></td></tr>`;
+    return;
+  }
+
+  corpo.innerHTML = lista.map(r => {
+    const dataFormatada = r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "—";
+    const estrelasHtml = Array.from({length:5}, (_, i) =>
+      `<span class="${i < r.notaGeral ? 'preenchida' : ''}" style="display:inline-flex;">${svgEstrela()}</span>`
+    ).join("");
+    const tagAutorizacao = r.autorizacao === "Sim"
+      ? '<span class="tag-autorizado">Autorizado</span>'
+      : '<span class="tag-naoautorizado">Não autorizado</span>';
+    const tagStatus = r.publicado ? '<span class="tag-publicado">Publicado</span>' : "—";
+
+    return `
+      <tr>
+        <td><strong>${escaparHTML(r.nome)}</strong></td>
+        <td>${dataFormatada}</td>
+        <td><div class="estrelas-mini">${estrelasHtml}</div></td>
+        <td class="comentario-cel">${escaparHTML(r.comentario || "—")}</td>
+        <td>${escaparHTML(r.origem || "—")}</td>
+        <td>${tagAutorizacao}</td>
+        <td>${tagStatus}</td>
+        <td>
+          <div class="acoes-linha">
+            <button class="btn-icone" onclick="visualizarCard('${r.id}')">Ver card</button>
+            <button class="btn-icone" onclick="baixarCard('${r.id}')">Baixar PNG</button>
+            <button class="btn-icone" onclick="copiarComentario('${r.id}')">Copiar</button>
+            <button class="btn-icone" onclick="marcarPublicada('${r.id}')">Publicada</button>
+            <button class="btn-icone perigo" onclick="excluirAvaliacao('${r.id}')">Excluir</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+}
+
+function escaparHTML(texto){
+  const div = document.createElement("div");
+  div.textContent = texto || "";
+  return div.innerHTML;
+}
+
+function visualizarCard(id){
+  const item = obterAvaliacoesLocais().find(r => r.id === id);
+  if(!item || !item.cardPng){ alert("Card ainda não disponível para esta avaliação."); return; }
+  document.getElementById("imagemModalCard").src = item.cardPng;
+  document.getElementById("modalCard").classList.add("ativo");
+}
+function fecharModalCard(){ document.getElementById("modalCard").classList.remove("ativo"); }
+
+function baixarCard(id){
+  const item = obterAvaliacoesLocais().find(r => r.id === id);
+  if(!item || !item.cardPng){ alert("Card ainda não disponível para esta avaliação."); return; }
+  const link = document.createElement("a");
+  link.href = item.cardPng;
+  link.download = `rodre-avaliacao-${item.nome.replace(/\s+/g,"-").toLowerCase()}.png`;
+  link.click();
+}
+
+function copiarComentario(id){
+  const item = obterAvaliacoesLocais().find(r => r.id === id);
+  if(!item) return;
+  navigator.clipboard?.writeText(item.comentario || "")
+    .then(() => alert("Comentário copiado!"))
+    .catch(() => alert("Não foi possível copiar automaticamente."));
+}
+
+function marcarPublicada(id){
+  const lista = obterAvaliacoesLocais();
+  const item = lista.find(r => r.id === id);
+  if(item){
+    item.publicado = !item.publicado;
+    localStorage.setItem("rodre_avaliacoes", JSON.stringify(lista));
+    renderizarTabela();
+  }
+}
+
+function excluirAvaliacao(id){
+  if(!confirm("Tem certeza que deseja excluir esta avaliação? Essa ação não pode ser desfeita.")) return;
+  const lista = obterAvaliacoesLocais().filter(r => r.id !== id);
+  localStorage.setItem("rodre_avaliacoes", JSON.stringify(lista));
+  renderizarTabela();
+  renderizarDashboard();
+  desenharGraficos();
+}
+
+function exportarCSV(){
+  const lista = obterAvaliacoesFiltradas();
+  if(lista.length === 0){ alert("Não há avaliações para exportar com os filtros atuais."); return; }
+
+  const cabecalho = ["Data","Nome","Nota geral","Atendimento","Compra","Entrega","Produtos","Comentário","Autorização","Origem"];
+  const linhas = lista.map(r => [
+    r.data, r.nome, r.notaGeral, r.atendimento, r.compra, r.entrega, r.produtos,
+    (r.comentario || "").replace(/"/g,'""'), r.autorizacao, r.origem
+  ]);
+
+  const csv = [cabecalho, ...linhas]
+    .map(linha => linha.map(campo => `"${campo ?? ""}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `rodre-avaliacoes-${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+}
+
+/* ---------------- GRÁFICOS (Canvas nativo, sem bibliotecas pesadas) ---------------- */
+
+function desenharGraficoBarras(canvasId, dados, labels, cor){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const largura = canvas.parentElement.clientWidth - 40;
+  const altura = 160;
+  canvas.width = largura * dpr; canvas.height = altura * dpr;
+  canvas.style.width = largura + "px"; canvas.style.height = altura + "px";
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,largura,altura);
+
+  const max = Math.max(...dados, 1);
+  const larguraBarra = largura / dados.length * 0.55;
+  const espaco = largura / dados.length;
+
+  dados.forEach((valor, i) => {
+    const alturaBarra = (valor / max) * (altura - 30);
+    const x = i * espaco + (espaco - larguraBarra)/2;
+    const y = altura - 22 - alturaBarra;
+    ctx.fillStyle = cor;
+    ctx.beginPath();
+    ctx.roundRect(x, y, larguraBarra, alturaBarra, 6);
+    ctx.fill();
+    ctx.fillStyle = "#2B1224";
+    ctx.font = "11px DM Sans, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(labels[i], x + larguraBarra/2, altura - 6);
+    if(valor > 0){ ctx.fillText(valor, x + larguraBarra/2, y - 6); }
+  });
+}
+
+function desenharGraficoLinha(canvasId, dados, labels){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const largura = canvas.parentElement.clientWidth - 40;
+  const altura = 160;
+  canvas.width = largura * dpr; canvas.height = altura * dpr;
+  canvas.style.width = largura + "px"; canvas.style.height = altura + "px";
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,largura,altura);
+
+  const max = Math.max(...dados, 1);
+  const passoX = largura / Math.max(dados.length - 1, 1);
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#C2186F";
+  ctx.lineWidth = 2.5;
+  dados.forEach((valor, i) => {
+    const x = i * passoX;
+    const y = altura - 22 - (valor / max) * (altura - 36);
+    if(i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  dados.forEach((valor, i) => {
+    const x = i * passoX;
+    const y = altura - 22 - (valor / max) * (altura - 36);
+    ctx.fillStyle = "#E84393";
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    if(dados.length <= 14){
+      ctx.fillStyle = "#6B4A63";
+      ctx.font = "10px DM Sans, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(labels[i], x, altura - 4);
+    }
+  });
+}
+
+function desenharGraficos(){
+  const lista = obterAvaliacoesLocais();
+
+  // Evolução diária — agrupa contagem de avaliações por dia (últimos 14 dias com dados)
+  const porDia = {};
+  lista.forEach(r => {
+    const dia = (r.data || "").slice(0,10);
+    porDia[dia] = (porDia[dia] || 0) + 1;
+  });
+  const diasOrdenados = Object.keys(porDia).sort().slice(-14);
+  desenharGraficoLinha(
+    "graficoEvolucao",
+    diasOrdenados.map(d => porDia[d]),
+    diasOrdenados.map(d => d ? d.slice(8,10)+"/"+d.slice(5,7) : "")
+  );
+
+  // Distribuição de notas (1 a 5 estrelas)
+  const distribuicao = [1,2,3,4,5].map(n => lista.filter(r => Number(r.notaGeral) === n).length);
+  desenharGraficoBarras("graficoDistribuicao", distribuicao, ["1★","2★","3★","4★","5★"], "#C2186F");
+
+  // Média por categoria
+  const mediaCat = chave => {
+    const valores = lista.map(r => Number(r[chave])).filter(v => v > 0);
+    return valores.length ? +(valores.reduce((a,b)=>a+b,0)/valores.length).toFixed(1) : 0;
+  };
+  desenharGraficoBarras(
+    "graficoCategorias",
+    [mediaCat('atendimento'), mediaCat('compra'), mediaCat('entrega'), mediaCat('produtos')],
+    ["Atend.","Compra","Entrega","Prod."],
+    "#7A1B6B"
+  );
+}
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+function inicializar(){
+  const params = lerParametrosURL();
+
+  // Decide se mostra o painel admin ou a aplicação de avaliação
+  if(params.get("admin") === "1"){
+    document.getElementById("app-avaliacao").style.display = "none";
+    document.getElementById("app-admin").style.display = "block";
+    if(sessionStorage.getItem("rodre_admin_autenticado") === "1"){
+      document.getElementById("telaLoginAdmin").style.display = "none";
+      document.getElementById("painelAdminShell").style.display = "flex";
+      inicializarPainelAdmin();
+    }
+    return;
+  }
+
+  // Monta os grupos de estrelas interativas
+  montarGrupoEstrelas(document.getElementById("estrelasGeral"), "geral", "grande");
+  document.querySelectorAll('[data-grupo]:not(#estrelasGeral)').forEach(container => {
+    montarGrupoEstrelas(container, container.dataset.grupo, "pequena");
+  });
+
+  // Recupera rascunho salvo (salvamento automático em caso de fechamento da página)
+  recuperarRascunho();
+  if(telaAtual > 1){
+    document.getElementById("campoNome").value = estadoAvaliacao.nome || "";
+    document.getElementById("campoComentario").value = estadoAvaliacao.comentario || "";
+    pintarEstrelas(document.getElementById("estrelasGeral"), estadoAvaliacao.geral);
+    if(estadoAvaliacao.geral) document.getElementById("legendaGeral").textContent = legendasEstrela[estadoAvaliacao.geral];
+    document.querySelectorAll('[data-grupo]:not(#estrelasGeral)').forEach(container => {
+      pintarEstrelas(container, estadoAvaliacao[container.dataset.grupo]);
+    });
+    if(estadoAvaliacao.autorizacao){
+      document.getElementById("checkAutorizacao").checked = true;
+      sincronizarAutorizacao(true);
+    }
+  }
+  irPara(telaAtual);
+
+  // Salva o comentário continuamente para não perder o rascunho
+  document.getElementById("campoComentario").addEventListener("input", e => {
+    estadoAvaliacao.comentario = e.target.value;
+    salvarRascunho();
+  });
+  document.getElementById("campoNome").addEventListener("input", e => {
+    estadoAvaliacao.nome = e.target.value;
+  });
+
+  // Salva rascunho ao tentar fechar a página
+  window.addEventListener("beforeunload", salvarRascunho);
+}
+
+document.addEventListener("DOMContentLoaded", inicializar);
+</script>
+</body>
+</html>
